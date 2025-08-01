@@ -8,6 +8,28 @@ from utils.response import success_message, error_message
 buku_bp = Blueprint('buku_bp', __name__)
 buku_schema = BukuSchema()
 
+@buku_bp.route('/buku/search', methods=['GET'])
+@login_required
+def searchBuku():
+    query = request.args.get('search', '')
+
+    if not query:
+        return error_message(message="Query pencarian kosong!!", status_code=400)
+    
+    buku_list = Buku.query.filter(
+        (Buku.judul.ilike(f"%{query}%")) |
+        (Buku.penulis.ilike(f"%{query}%")) |
+        (Buku.tahun.ilike(f"{query}"))
+    ).all()
+
+    if not buku_list:
+        return error_message(message="Data buku tidak ditemukan!!", status_code=404)
+    
+    return success_message(
+        data=BukuSchema(many=True).dump(buku_list),
+        message=f"Hasil pencarian untuk '{query}'"
+    )
+
 @buku_bp.route('/buku', methods=['POST'])
 @login_required
 def tambah_buku():

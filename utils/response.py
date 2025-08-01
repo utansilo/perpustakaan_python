@@ -1,13 +1,18 @@
-def success_message(data=None, message="Success"):
-    return {
-        "status": "success",
-        "message": message,
-        "data": data
-    }, 200
+from flask import jsonify
 
-def error_message(message="Something went wrong", status_code=400):
-    return {
-        "status": "error",
-        "message": message,
-        "data": None
-    }, status_code
+def success_message(data=None, message="Success", status_code=200):
+    response = {
+        "success" : True,
+        "message" : message
+    }
+
+    if data is not None:
+        response['data'] = data
+
+    return jsonify(response), status_code
+
+def error_message(message="Error", status_code=400):
+    return jsonify({
+        "success" : False,
+        "message" : message
+    }), status_code
